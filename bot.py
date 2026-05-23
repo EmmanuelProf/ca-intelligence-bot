@@ -168,19 +168,10 @@ async def main():
 
     async with aiohttp.ClientSession() as http:
 
-        @client.on(events.NewMessage())
+        @client.on(events.NewMessage(chats=channel_entities))
         async def handler(event):
             msg  = event.message
             text = msg.message or ""
-
-            # Debug: log every message received
-            try:
-                chat = await event.get_chat()
-                chat_name = getattr(chat, "username", None) or getattr(chat, "title", None) or str(chat.id)
-                log.info(f"📨 Message in @{chat_name}: {text[:80]!r}")
-            except Exception as e:
-                log.info(f"📨 Message received (chat unknown): {text[:80]!r}")
-
             if not text:
                 return
 
