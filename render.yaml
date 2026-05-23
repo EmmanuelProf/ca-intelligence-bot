@@ -1,0 +1,34 @@
+services:
+  - type: worker
+    name: ca-intelligence-bot
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: TELEGRAM_API_ID
+        sync: false          # get from my.telegram.org → App API
+
+      - key: TELEGRAM_API_HASH
+        sync: false          # get from my.telegram.org → App API
+
+      # --- AUTH: choose ONE of the three below ---
+
+      # OPTION A (recommended): user account via saved session
+      # Run bot.py locally with TELEGRAM_PHONE first, copy printed session string here
+      - key: TELEGRAM_SESSION
+        sync: false
+
+      # OPTION B: user account interactive (only works locally, not on Render)
+      # - key: TELEGRAM_PHONE
+      #   sync: false        # e.g. +2348012345678
+
+      # OPTION C: bot token (only works if bot is admin in every monitored channel)
+      # - key: TELEGRAM_BOT_TOKEN
+      #   sync: false
+
+      - key: N8N_WEBHOOK_URL
+        sync: false          # e.g. https://n8n-q88i.onrender.com/webhook/ca-intel
+
+      - key: WATCH_CHANNELS
+        sync: false          # comma-separated: alphacalls,bsccallers,web3gems
+                             # no @ needed — just the username
