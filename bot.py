@@ -34,6 +34,7 @@ BOT_TOKEN     = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 PHONE_NUMBER  = os.environ.get("TELEGRAM_PHONE", "")       # e.g. +2348012345678
 SESSION_STR   = os.environ.get("TELEGRAM_SESSION", "")     # saved StringSession
 N8N_WEBHOOK   = os.environ["N8N_WEBHOOK_URL"]              # /webhook/ca-intel URL
+DYOR_WEBHOOK  = os.environ.get("DYOR_WEBHOOK_URL", "")     # /webhook/dyor-intel URL (optional)
 
 CHANNELS = [
     c.strip().lstrip("@")
@@ -86,10 +87,10 @@ def extract_cas(text: str) -> list[dict]:
     return found
 
 # ── Webhook Sender ────────────────────────────────────────────────────────────
-async def send_to_n8n(session: aiohttp.ClientSession, payload: dict):
+async def send_to_n8n(session: aiohttp.ClientSession, payload: dict, url: str = None):
     try:
         async with session.post(
-            N8N_WEBHOOK,
+            url or N8N_WEBHOOK,
             json=payload,
             timeout=aiohttp.ClientTimeout(total=10)
         ) as resp:
@@ -212,6 +213,8 @@ async def main():
                 }
                 log.info(f"🔎 CA in @{channel_name} from {sender_name}: {ca['address']} [{ca['chain']}]")
                 await send_to_n8n(http, payload)
+                if DYOR_WEBHOOK:
+                    await send_to_n8n(http, payload, url=DYOR_WEBHOOK)
 
         log.info("👂 Listening for messages... (Ctrl+C to stop)")
         await client.run_until_disconnected()
